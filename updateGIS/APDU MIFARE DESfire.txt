@@ -1,0 +1,33 @@
+https://stackoverflow.com/questions/21121149/bytes-automatically-send-by-android-nfc-to-an-emulated-card
+
+What are these commands?
+
+The first command (90 60 00 00 00) is a MIFARE DESFire GetVersion command (wrapped command set). This seems to be specific to the NXP-based Android NFC stack and is not part of a typical NFC tag detection procedure.
+
+The second command (00 A4 04 00 07 D2 76 00 00 85 01 01 00) is a SELECT APDU that tries to select the NFC Forum Type 4 tag application (version 2.0) by its AID. This is part of the typical tag detection procedure for ISO 14443-4 (ISO-DEP) based tags/smartcards.
+
+Why are these commands sent before apps are notified about the presence of a tag and even if no app is active at all?
+
+A typical NFC device will automatically discover the presence of NFC tags that contain NDEF messages. Usually such NDEF messages then trigger actions on the device (e.g. start an app). As your tag seems to be an ISO 14443-4 (ISO-DEP) compliant tag/smartcard, the NDEF discovery procedure for an NFC Forum Type 4 tag is started. This procedure normally contains of the following steps:
+
+Select the NFC Forum Type 4 tag application (version 2.0)
+
+00 A4 04 00 07 D2 76 00 00 85 01 01 00
+If application selection is successful, continue with reading the capability container file and the NDEF data file.
+
+If application selection fails, continue with selecting the NFC Forum Type 4 tag application (version 1.0)
+
+00 A4 04 00 07 D2 76 00 00 85 01 00 00
+If application selection is successful, continue with reading the capability container file and the NDEF data file.
+
+If application selection fails, tag is not an NFC Forum Type 4 tag.
+
+Typically the connection to the tag is reset at this point so that any communication that an app performs with a tag is started right after a fresh activation of the tag.
+
+The additional command before step 1 indicates that the NXP's NFC stack additionally tries to find out if the Type 4 tag is an NXP product (NXP's MIFARE DESFire or DESFIRE EV1). It is not related to peer-to-peer mode protocols.
+
+Remark on the Broadcom NFC stack: There is a known issue that seems to still exist on Android 4.4: Even after the tag is passed to an app and the app started IsoDep communication the NFC stack arbitrarily sends READ BINARY commands interleaved with the app's communication. This frequently results into protocol errors due to invalid command sequences. This does not happen with NXP's NFC stack.
+
+Can I prevent this initial processing of a tag?
+
+Yes, but only since Android 4.4. On that platform you can use the NfcAdapter's enableReaderMode method to bring the device into a reader mode without NDEF discovery.
