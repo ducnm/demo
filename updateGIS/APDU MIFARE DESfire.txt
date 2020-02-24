@@ -1,3 +1,4 @@
+ducnm here
 https://stackoverflow.com/questions/21121149/bytes-automatically-send-by-android-nfc-to-an-emulated-card
 
 What are these commands?
