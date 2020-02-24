@@ -1,6 +1,8 @@
 ducnm here
 https://stackoverflow.com/questions/21121149/bytes-automatically-send-by-android-nfc-to-an-emulated-card
 
+new changed to test
+
 What are these commands?
 
 The first command (90 60 00 00 00) is a MIFARE DESFire GetVersion command (wrapped command set). This seems to be specific to the NXP-based Android NFC stack and is not part of a typical NFC tag detection procedure.
